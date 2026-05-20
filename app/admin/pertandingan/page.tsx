@@ -35,7 +35,7 @@ export default async function AdminPertandinganPage({ searchParams }: { searchPa
   const matches = await prisma.match.findMany({
     where: { seasonId: targetSeason.id },
     select: {
-      id: true, status: true, homeScore: true, awayScore: true, scheduledAt: true,
+      id: true, status: true, homeScore: true, awayScore: true, isVerified: true, scheduledAt: true,
       homePlayer: { select: { id: true, name: true, shortName: true } },
       awayPlayer: { select: { id: true, name: true, shortName: true } },
       season: { select: { name: true } },

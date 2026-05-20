@@ -24,6 +24,7 @@ interface Match {
   homePlayer: Player
   awayPlayer: Player
   season: { name: string }
+  isVerified?: boolean
 }
 
 interface MatchTableClientProps {
@@ -37,6 +38,25 @@ interface MatchTableClientProps {
 export default function MatchTableClient({ matches, seasons, currentSeasonId, hideScheduled, hideHistory }: MatchTableClientProps) {
   const router = useRouter()
   const [search, setSearch] = useState('')
+  const [verifying, setVerifying] = useState<Record<string, boolean>>({})
+
+  const toggleVerify = async (matchId: string, currentStatus: boolean) => {
+    try {
+      setVerifying(prev => ({ ...prev, [matchId]: true }))
+      const res = await fetch(`/api/matches/${matchId}/verify`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isVerified: !currentStatus })
+      })
+      if (res.ok) {
+        router.refresh()
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setVerifying(prev => ({ ...prev, [matchId]: false }))
+    }
+  }
 
   // Filter matches based on search query
   const filteredMatches = useMemo(() => {
@@ -161,10 +181,21 @@ export default function MatchTableClient({ matches, seasons, currentSeasonId, hi
                               <Pencil className="w-3.5 h-3.5" />
                             </Link>
                             
+                            {isHistory && match.status === 'FINISHED' && (
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); toggleVerify(match.id, !!match.isVerified); }}
+                                disabled={verifying[match.id]}
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 ${match.isVerified ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' : 'bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground'}`}
+                                title={match.isVerified ? "Batal Verifikasi" : "Tandai Terverifikasi"}
+                              >
+                                <ClipboardCheck className="w-4 h-4" />
+                              </button>
+                            )}
+
                             <Link href={`/admin/pertandingan/${match.id}/hasil`}
                               className="px-2 py-1.5 rounded-lg bg-gaming-accent/10 text-gaming-accent text-xs font-semibold hover:bg-gaming-accent/20 transition-colors flex items-center gap-1 whitespace-nowrap"
                               title={isHistory ? "Revisi Hasil" : "Input Hasil"}>
-                              <ClipboardCheck className="w-3.5 h-3.5" /> 
+                              <Pencil className="w-3.5 h-3.5" /> 
                               <span className="hidden sm:inline">{isHistory ? "Revisi" : "Input"}</span>
                             </Link>
                             

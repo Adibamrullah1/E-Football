@@ -37,6 +37,7 @@ export default async function AdminRiwayatPage({ searchParams }: { searchParams:
       status: true,
       homeScore: true,
       awayScore: true,
+      isVerified: true,
       scheduledAt: true,
       homePlayer: { select: { id: true, name: true, shortName: true } },
       awayPlayer: { select: { id: true, name: true, shortName: true } },
