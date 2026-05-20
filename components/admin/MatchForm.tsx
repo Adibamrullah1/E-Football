@@ -43,6 +43,16 @@ export default function MatchForm({ initialData }: MatchFormProps = {}) {
   const [checkingEligibility, setCheckingEligibility] = useState(false)
 
   useEffect(() => {
+    // Set default current time for new match to avoid hydration mismatch
+    if (!initialData?.scheduledAt) {
+      const now = new Date();
+      const offsetMs = now.getTimezoneOffset() * 60 * 1000;
+      const localDate = new Date(now.getTime() - offsetMs);
+      setForm(f => ({ ...f, scheduledAt: localDate.toISOString().slice(0, 16) }));
+    }
+  }, [initialData])
+
+  useEffect(() => {
     fetch('/api/players').then(r => r.json()).then(setPlayers).catch(() => {})
     fetch('/api/seasons').then(r => r.json()).then((data) => {
       setSeasons(data)
