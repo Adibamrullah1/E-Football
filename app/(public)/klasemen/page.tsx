@@ -10,9 +10,7 @@ export const metadata: Metadata = {
   description: 'Lihat klasemen liga eFootball Mobile terkini.',
 }
 
-export const dynamic = 'force-dynamic'
-
-async function getStandings(seasonIdParam?: string) {
+const getStandings = unstable_cache(async (seasonIdParam?: string) => {
   const seasons = await prisma.season.findMany({
     orderBy: { startDate: 'desc' }
   })
@@ -76,7 +74,7 @@ async function getStandings(seasonIdParam?: string) {
   })
 
   return { standings, seasonName: targetSeason.name, seasons, activeSeasonId: targetSeason.id }
-}
+}, ['klasemen-standings'], { tags: ['matches', 'seasons', 'players'], revalidate: 3600 })
 
 export default async function KlasemenPage({ searchParams }: { searchParams: { season?: string } }) {
   const { standings, seasonName, seasons, activeSeasonId } = await getStandings(searchParams.season)

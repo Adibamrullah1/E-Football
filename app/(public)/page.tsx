@@ -1,13 +1,12 @@
-export const dynamic = 'force-dynamic'
-
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { Trophy, Calendar, ArrowRight, Gamepad2, Zap, Target } from 'lucide-react'
 import StandingsTable from '@/components/public/StandingsTable'
 import MatchCard from '@/components/public/MatchCard'
 import MonthlyChampions from '@/components/public/MonthlyChampions'
+import { unstable_cache } from 'next/cache'
 
-async function getHomeData() {
+const getHomeData = unstable_cache(async () => {
   const [recentMatches, upcomingMatches, players, season, pastSeasons] = await Promise.all([
     prisma.match.findMany({
       where: { status: 'FINISHED' },
@@ -97,7 +96,7 @@ async function getHomeData() {
     season,
     champions
   }
-}
+}, ['home-data'], { tags: ['matches', 'seasons', 'players'], revalidate: 3600 })
 
 export default async function HomePage() {
   const data = await getHomeData()

@@ -16,5 +16,21 @@ export const resultSchema = z.object({
   playedAt: z.string().optional(),
 })
 
+export const matchUpdateSchema = z.object({
+  scheduledAt: z.string().min(1).optional(),
+  status: z.enum(['SCHEDULED', 'LIVE', 'FINISHED', 'POSTPONED', 'CANCELLED']).optional(),
+  homePlayerId: z.string().min(1).optional(),
+  awayPlayerId: z.string().min(1).optional(),
+}).refine(data => {
+  if (data.homePlayerId && data.awayPlayerId) {
+    return data.homePlayerId !== data.awayPlayerId
+  }
+  return true
+}, {
+  message: 'Player home dan away tidak boleh sama',
+  path: ['awayPlayerId'],
+})
+
 export type MatchInput = z.infer<typeof matchSchema>
+export type MatchUpdateInput = z.infer<typeof matchUpdateSchema>
 export type ResultInput = z.infer<typeof resultSchema>

@@ -3,6 +3,8 @@ import { revalidateTag } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { checkEligibility } from '@/lib/services/matchmaking.service'
+import { checkRateLimit } from '@/lib/rate-limit'
+import { logger } from '@/lib/logger'
 
 export async function GET(req: Request) {
   try {
@@ -31,11 +33,15 @@ export async function GET(req: Request) {
     })
     return NextResponse.json(matches)
   } catch (error) {
+    logger.error('Failed to fetch matches', error, { path: '/api/matches' })
     return NextResponse.json({ error: 'Failed to fetch matches' }, { status: 500 })
   }
 }
 
 export async function POST(req: Request) {
+  const rateLimited = checkRateLimit(req, { maxRequests: 20, windowMs: 60_000 })
+  if (rateLimited) return rateLimited
+
   try {
     const session = await auth()
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -66,12 +72,25 @@ export async function POST(req: Request) {
       include: { homePlayer: true, awayPlayer: true, season: true },
     })
 
+    logger.audit({
+      action: 'CREATE',
+      entity: 'Match',
+      entityId: match.id,
+      userId: (session.user as any)?.id,
+      details: {
+        home: match.homePlayer.name,
+        away: match.awayPlayer.name,
+        scheduledAt: match.scheduledAt.toISOString(),
+      },
+    })
+
     revalidateTag('matches')
     revalidateTag('seasons')
     revalidateTag('players')
 
     return NextResponse.json(match, { status: 201 })
   } catch (error) {
+    logger.error('Failed to create match', error, { path: '/api/matches' })
     return NextResponse.json({ error: 'Failed to create match' }, { status: 500 })
   }
 }

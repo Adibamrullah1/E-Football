@@ -8,9 +8,7 @@ export const metadata: Metadata = {
   description: 'Lihat jadwal dan hasil pertandingan liga eFootball',
 }
 
-export const dynamic = 'force-dynamic'
-
-async function getMatches(seasonIdParam?: string) {
+const getMatches = unstable_cache(async (seasonIdParam?: string) => {
   const seasons = await prisma.season.findMany({
     orderBy: { startDate: 'desc' }
   })
@@ -38,7 +36,7 @@ async function getMatches(seasonIdParam?: string) {
   })
     
   return { matches, seasons, activeSeasonId: targetSeason.id }
-}
+}, ['jadwal-matches'], { tags: ['matches', 'seasons', 'players'], revalidate: 3600 })
 
 export default async function JadwalPage({ searchParams }: { searchParams: { season?: string } }) {
   const { matches, seasons, activeSeasonId } = await getMatches(searchParams.season)

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { checkEligibility } from '@/lib/services/matchmaking.service'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +21,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(result)
   } catch (error) {
-    console.error('Eligibility check failed:', error)
+    logger.error('Eligibility check failed', error, { path: '/api/matchmaking/eligibility' })
     return NextResponse.json(
       { error: 'Gagal memeriksa eligibility' },
       { status: 500 }

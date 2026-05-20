@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 import { prisma } from '@/lib/prisma'
 import DashboardStats from '@/components/admin/DashboardStats'
 import Link from 'next/link'
-import { Calendar, ArrowRight } from 'lucide-react'
+import { Calendar, ArrowRight, ClipboardCheck, AlertCircle, AlertTriangle, Info } from 'lucide-react'
 import { formatDateTime, getStatusBadgeColor, getStatusLabel } from '@/lib/utils'
 
 export default async function AdminDashboard() {
@@ -30,6 +30,22 @@ export default async function AdminDashboard() {
         totalMatches={totalMatches}
         finishedMatches={finishedMatches}
       />
+
+      {/* Checklist Quick Card */}
+      <Link href="/admin/checklist" className="block">
+        <div className="game-card p-5 flex items-center justify-between group cursor-pointer">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neon/20 to-neon-blue/20 border border-neon/30 flex items-center justify-center">
+              <ClipboardCheck className="w-6 h-6 text-neon" />
+            </div>
+            <div>
+              <h3 className="font-heading text-base font-bold text-foreground">Checklist Verifikasi Data</h3>
+              <p className="text-xs text-muted-foreground">Cek otomatis & verifikasi manual untuk memastikan data akurat</p>
+            </div>
+          </div>
+          <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+        </div>
+      </Link>
 
       {/* Recent Activity */}
       <div>

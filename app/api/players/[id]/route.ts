@@ -3,6 +3,9 @@ import { revalidateTag } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { playerSchema } from '@/lib/validations/player'
+import { sanitizeObject } from '@/lib/sanitize'
+import { checkRateLimit } from '@/lib/rate-limit'
+import { logger } from '@/lib/logger'
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -20,17 +23,22 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     return NextResponse.json(player)
   } catch (error) {
+    logger.error('Failed to fetch player', error, { path: `/api/players/${params.id}` })
     return NextResponse.json({ error: 'Failed to fetch player' }, { status: 500 })
   }
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const rateLimited = checkRateLimit(req, { maxRequests: 20, windowMs: 60_000 })
+  if (rateLimited) return rateLimited
+
   try {
     const session = await auth()
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
-    const data = playerSchema.parse(body)
+    const sanitized = sanitizeObject(body)
+    const data = playerSchema.parse(sanitized)
 
     const player = await prisma.player.update({
       where: { id: params.id },
@@ -44,6 +52,14 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       },
     })
 
+    logger.audit({
+      action: 'UPDATE',
+      entity: 'Player',
+      entityId: player.id,
+      userId: (session.user as any)?.id,
+      details: { name: player.name },
+    })
+
     revalidateTag('players')
     revalidateTag('matches')
     revalidateTag('seasons')
@@ -53,11 +69,15 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     if (error.name === 'ZodError') {
       return NextResponse.json({ error: error.errors }, { status: 400 })
     }
+    logger.error('Failed to update player', error, { path: `/api/players/${params.id}` })
     return NextResponse.json({ error: 'Failed to update player' }, { status: 500 })
   }
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  const rateLimited = checkRateLimit(req, { maxRequests: 10, windowMs: 60_000 })
+  if (rateLimited) return rateLimited
+
   try {
     const session = await auth()
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -69,12 +89,20 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       prisma.player.delete({ where: { id: params.id } }),
     ])
 
+    logger.audit({
+      action: 'DELETE',
+      entity: 'Player',
+      entityId: params.id,
+      userId: (session.user as any)?.id,
+    })
+
     revalidateTag('players')
     revalidateTag('matches')
     revalidateTag('seasons')
 
     return NextResponse.json({ message: 'Player deleted' })
   } catch (error) {
+    logger.error('Failed to delete player', error, { path: `/api/players/${params.id}` })
     return NextResponse.json({ error: 'Failed to delete player' }, { status: 500 })
   }
 }

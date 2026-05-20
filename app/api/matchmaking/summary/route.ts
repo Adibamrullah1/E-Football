@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getQuotaSummary } from '@/lib/services/matchmaking.service'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,7 +13,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(summary)
   } catch (error) {
-    console.error('Quota summary failed:', error)
+    logger.error('Quota summary failed', error, { path: '/api/matchmaking/summary' })
     return NextResponse.json(
       { error: 'Gagal mengambil quota summary' },
       { status: 500 }

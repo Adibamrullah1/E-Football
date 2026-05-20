@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 export async function GET(req: Request) {
   try {
@@ -11,13 +12,19 @@ export async function GET(req: Request) {
         status: 'FINISHED',
         ...(seasonId ? { seasonId } : {}),
       },
-      include: {
-        homePlayer: true,
-        awayPlayer: true,
+      select: {
+        homePlayerId: true,
+        awayPlayerId: true,
+        homeScore: true,
+        awayScore: true,
+        homePlayer: { select: { id: true, name: true, shortName: true, avatarUrl: true } },
+        awayPlayer: { select: { id: true, name: true, shortName: true, avatarUrl: true } },
       },
     })
 
-    const players = await prisma.player.findMany()
+    const players = await prisma.player.findMany({
+      select: { id: true, name: true, shortName: true, avatarUrl: true },
+    })
 
     const standingsMap = new Map<string, {
       playerId: string
@@ -78,6 +85,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(standings)
   } catch (error) {
+    logger.error('Failed to compute standings', error, { path: '/api/standings' })
     return NextResponse.json({ error: 'Failed to compute standings' }, { status: 500 })
   }
 }

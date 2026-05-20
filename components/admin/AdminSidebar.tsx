@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, UserCircle, Swords, CalendarClock,
-  LogOut, Gamepad2, ChevronLeft, ChevronRight, Menu, X, History
+  LogOut, Gamepad2, ChevronLeft, ChevronRight, Menu, X, History, ClipboardCheck
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { useState } from 'react'
@@ -14,6 +14,7 @@ const menuItems = [
   { href: '/admin/pemain', label: 'Pemain', icon: UserCircle },
   { href: '/admin/pertandingan', label: 'Pertandingan', icon: Swords },
   { href: '/admin/riwayat', label: 'Riwayat Hasil', icon: History },
+  { href: '/admin/checklist', label: 'Checklist', icon: ClipboardCheck },
   { href: '/admin/musim', label: 'Musim', icon: CalendarClock },
 ]
 
