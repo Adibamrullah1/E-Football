@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Season {
+  id        String   @id @default(cuid())
+  name      String
+  isActive  Boolean  @default(false)
+  startDate DateTime
+  endDate   DateTime
+  matches   Match[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Player {
+  id          String   @id @default(cuid())
+  name        String
+  username    String   @unique
+  shortName   String
+  avatarUrl   String?
+  description String?  @db.Text
+  city        String?
+  
+  homeMatches Match[]  @relation("HomePlayer")
+  awayMatches Match[]  @relation("AwayPlayer")
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
+}
+
+model Match {
+  id          String      @id @default(cuid())
+  seasonId    String
+  season      Season      @relation(fields: [seasonId], references: [id])
+  homePlayerId  String
+  homePlayer    Player        @relation("HomePlayer", fields: [homePlayerId], references: [id])
+  awayPlayerId  String
+  awayPlayer    Player        @relation("AwayPlayer", fields: [awayPlayerId], references: [id])
+  scheduledAt DateTime
+  playedAt    DateTime?
+  status      MatchStatus @default(SCHEDULED)
+  homeScore   Int?
+  awayScore   Int?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([seasonId])
+  @@index([homePlayerId])
+  @@index([awayPlayerId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  FINISHED
+  POSTPONED
+  CANCELLED
+}
+
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  role      UserRole @default(ADMIN)
+  createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+}
