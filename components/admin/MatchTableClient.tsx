@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Search, ClipboardCheck, Pencil, Calendar, History, Gamepad2 } from 'lucide-react'
@@ -39,6 +39,11 @@ export default function MatchTableClient({ matches, seasons, currentSeasonId, hi
   const router = useRouter()
   const [search, setSearch] = useState('')
   const [verifying, setVerifying] = useState<Record<string, boolean>>({})
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const toggleVerify = async (matchId: string, currentStatus: boolean) => {
     try {
@@ -212,6 +217,10 @@ export default function MatchTableClient({ matches, seasons, currentSeasonId, hi
         ))}
       </div>
     )
+  }
+
+  if (!mounted) {
+    return <div className="space-y-6 animate-pulse p-4"><div className="h-20 bg-secondary/50 rounded-xl" /></div>
   }
 
   return (
