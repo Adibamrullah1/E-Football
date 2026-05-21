@@ -160,7 +160,9 @@ export default function MatchTableClient({ matches, seasons, currentSeasonId, hi
                             <div className="flex items-center justify-center gap-1.5">
                               <span className="font-gaming font-bold tabular-nums text-sm">{match.homeScore} : {match.awayScore}</span>
                               {match.isVerified && (
-                                <CheckCircle2 className="w-4 h-4 text-green-500" title="Skor telah diperiksa" />
+                                <span title="Skor telah diperiksa">
+                                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                </span>
                               )}
                             </div>
                           ) : <span className="text-muted-foreground">—</span>}
