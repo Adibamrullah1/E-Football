@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
 interface Season {
   id: string
@@ -13,7 +14,7 @@ interface SeasonSelectorProps {
   currentSeasonId?: string
 }
 
-export default function SeasonSelector({ seasons, currentSeasonId }: SeasonSelectorProps) {
+function SeasonSelectorInner({ seasons, currentSeasonId }: SeasonSelectorProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -27,7 +28,7 @@ export default function SeasonSelector({ seasons, currentSeasonId }: SeasonSelec
     router.push(`?${params.toString()}`)
   }
 
-  if (seasons.length <= 1) return null; // Sembunyikan kalau cuma ada 1 musim
+  if (seasons.length <= 1) return null;
 
   return (
     <div className="flex items-center gap-2 bg-secondary/50 p-1.5 rounded-xl border border-border/50 max-w-[200px]">
@@ -43,5 +44,13 @@ export default function SeasonSelector({ seasons, currentSeasonId }: SeasonSelec
         ))}
       </select>
     </div>
+  )
+}
+
+export default function SeasonSelector(props: SeasonSelectorProps) {
+  return (
+    <Suspense fallback={<div className="h-9 w-32 bg-secondary/50 animate-pulse rounded-xl" />}>
+      <SeasonSelectorInner {...props} />
+    </Suspense>
   )
 }
