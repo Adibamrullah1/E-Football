@@ -7,7 +7,7 @@ import {
   LogOut, Gamepad2, ChevronLeft, ChevronRight, Menu, X, History, ClipboardCheck, CheckCircle2
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 const menuItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -23,36 +23,6 @@ export default function AdminSidebar() {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // Render a minimal skeleton on server to avoid hydration mismatch with Lucide SVG icons
-  if (!mounted) {
-    return (
-      <aside className="hidden md:flex flex-col w-64 bg-gaming-surface border-r border-border/50 h-full">
-        <div className="p-4 border-b border-border/50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-neon to-neon-blue animate-pulse shrink-0" />
-            <div>
-              <div className="h-4 w-20 bg-muted rounded animate-pulse" />
-              <div className="h-2 w-14 bg-muted rounded animate-pulse mt-1" />
-            </div>
-          </div>
-        </div>
-        <nav className="flex-1 p-3 space-y-1">
-          {menuItems.map((item) => (
-            <div key={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-lg">
-              <div className="w-5 h-5 bg-muted rounded animate-pulse shrink-0" />
-              <div className="h-4 w-24 bg-muted rounded animate-pulse" />
-            </div>
-          ))}
-        </nav>
-      </aside>
-    )
-  }
 
   const navContent = (
     <>
