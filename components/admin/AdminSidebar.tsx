@@ -24,7 +24,7 @@ export default function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  const NavContent = () => (
+  const navContent = (
     <>
       {/* Logo */}
       <div className="p-4 border-b border-border/50">
@@ -119,14 +119,14 @@ export default function AdminSidebar() {
             >
               <X className="w-4 h-4" />
             </button>
-            <NavContent />
+            {navContent}
           </aside>
         </div>
       )}
 
       {/* Desktop sidebar */}
       <aside className={`hidden md:flex flex-col ${collapsed ? 'w-20' : 'w-64'} bg-gaming-surface border-r border-border/50 transition-all duration-300 h-full`}>
-        <NavContent />
+        {navContent}
       </aside>
     </>
   )
