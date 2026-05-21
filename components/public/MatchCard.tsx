@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Calendar, Clock } from 'lucide-react'
+import { Calendar, Clock, Trophy } from 'lucide-react'
 import { formatShortDate, formatTime, getStatusBadgeColor, getStatusLabel } from '@/lib/utils'
 
 interface MatchCardProps {
@@ -42,13 +42,20 @@ export default function MatchCard({ match }: MatchCardProps) {
       <div className="flex items-center justify-between gap-2">
         {/* Home */}
         <Link href={`/pemain/${match.homePlayer.id}`} className="flex-1 text-center min-w-0 group/p">
-          <div className="w-10 h-10 md:w-12 md:h-12 mx-auto rounded-xl bg-gradient-to-br from-primary/20 to-secondary flex items-center justify-center text-xs font-bold text-primary mb-1 sm:mb-1.5 group-hover/p:ring-1 group-hover/p:ring-primary/50 transition-all overflow-hidden shrink-0">
-            {match.homePlayer.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={match.homePlayer.avatarUrl} alt={match.homePlayer.name} className="w-full h-full object-cover" loading="lazy" />
-            ) : match.homePlayer.shortName}
+          <div className="relative w-10 h-10 md:w-12 md:h-12 mx-auto mb-1 sm:mb-1.5 shrink-0">
+            <div className={`w-full h-full rounded-xl bg-gradient-to-br from-primary/20 to-secondary flex items-center justify-center text-xs font-bold text-primary group-hover/p:ring-1 group-hover/p:ring-primary/50 transition-all overflow-hidden ${isFinished && match.homeScore! > match.awayScore! ? 'ring-2 ring-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.3)]' : ''}`}>
+              {match.homePlayer.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={match.homePlayer.avatarUrl} alt={match.homePlayer.name} className="w-full h-full object-cover" loading="lazy" />
+              ) : match.homePlayer.shortName}
+            </div>
+            {isFinished && match.homeScore! > match.awayScore! && (
+              <div className="absolute -top-2 -right-2 bg-background rounded-full p-0.5 z-10 shadow-sm border border-border/50">
+                <Trophy className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+              </div>
+            )}
           </div>
-          <p className="text-xs font-semibold text-foreground group-hover/p:text-primary transition-colors truncate">
+          <p className={`text-xs font-semibold group-hover/p:text-primary transition-colors truncate ${isFinished && match.homeScore! > match.awayScore! ? 'text-yellow-500' : 'text-foreground'}`}>
             {match.homePlayer.name}
           </p>
           <p className="text-[10px] text-muted-foreground">Home</p>
@@ -58,9 +65,13 @@ export default function MatchCard({ match }: MatchCardProps) {
         <div className="text-center px-1 sm:px-2 shrink-0">
           {isFinished || isLive ? (
             <div className="flex items-center gap-1.5">
-              <span className="text-xl sm:text-2xl md:text-3xl font-gaming font-bold text-foreground tabular-nums">{match.homeScore}</span>
+              <span className={`text-xl sm:text-2xl md:text-3xl font-gaming font-bold tabular-nums ${isFinished ? (match.homeScore! > match.awayScore! ? 'text-green-500' : match.homeScore! < match.awayScore! ? 'text-red-500' : 'text-yellow-500') : 'text-foreground'}`}>
+                {match.homeScore}
+              </span>
               <span className="text-sm sm:text-base text-muted-foreground font-bold">:</span>
-              <span className="text-xl sm:text-2xl md:text-3xl font-gaming font-bold text-foreground tabular-nums">{match.awayScore}</span>
+              <span className={`text-xl sm:text-2xl md:text-3xl font-gaming font-bold tabular-nums ${isFinished ? (match.awayScore! > match.homeScore! ? 'text-green-500' : match.awayScore! < match.homeScore! ? 'text-red-500' : 'text-yellow-500') : 'text-foreground'}`}>
+                {match.awayScore}
+              </span>
             </div>
           ) : (
             <div className="text-base font-heading font-bold text-muted-foreground px-1">VS</div>
@@ -69,13 +80,20 @@ export default function MatchCard({ match }: MatchCardProps) {
 
         {/* Away */}
         <Link href={`/pemain/${match.awayPlayer.id}`} className="flex-1 text-center min-w-0 group/p">
-          <div className="w-10 h-10 md:w-12 md:h-12 mx-auto rounded-xl bg-gradient-to-br from-gaming-accent/20 to-secondary flex items-center justify-center text-xs font-bold text-gaming-accent mb-1 sm:mb-1.5 group-hover/p:ring-1 group-hover/p:ring-gaming-accent/50 transition-all overflow-hidden shrink-0">
-            {match.awayPlayer.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={match.awayPlayer.avatarUrl} alt={match.awayPlayer.name} className="w-full h-full object-cover" loading="lazy" />
-            ) : match.awayPlayer.shortName}
+          <div className="relative w-10 h-10 md:w-12 md:h-12 mx-auto mb-1 sm:mb-1.5 shrink-0">
+            <div className={`w-full h-full rounded-xl bg-gradient-to-br from-gaming-accent/20 to-secondary flex items-center justify-center text-xs font-bold text-gaming-accent group-hover/p:ring-1 group-hover/p:ring-gaming-accent/50 transition-all overflow-hidden ${isFinished && match.awayScore! > match.homeScore! ? 'ring-2 ring-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.3)]' : ''}`}>
+              {match.awayPlayer.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={match.awayPlayer.avatarUrl} alt={match.awayPlayer.name} className="w-full h-full object-cover" loading="lazy" />
+              ) : match.awayPlayer.shortName}
+            </div>
+            {isFinished && match.awayScore! > match.homeScore! && (
+              <div className="absolute -top-2 -right-2 bg-background rounded-full p-0.5 z-10 shadow-sm border border-border/50">
+                <Trophy className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+              </div>
+            )}
           </div>
-          <p className="text-xs font-semibold text-foreground group-hover/p:text-gaming-accent transition-colors truncate">
+          <p className={`text-xs font-semibold group-hover/p:text-gaming-accent transition-colors truncate ${isFinished && match.awayScore! > match.homeScore! ? 'text-yellow-500' : 'text-foreground'}`}>
             {match.awayPlayer.name}
           </p>
           <p className="text-[10px] text-muted-foreground">Away</p>

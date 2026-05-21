@@ -26,7 +26,12 @@ const getMatches = unstable_cache(async (seasonIdParam?: string) => {
   }
 
   const matches = await prisma.match.findMany({
-    where: { seasonId: targetSeason.id },
+    where: { 
+      seasonId: targetSeason.id,
+      status: {
+        in: ['SCHEDULED', 'LIVE']
+      }
+    },
     select: {
       id: true, status: true, homeScore: true, awayScore: true, scheduledAt: true,
       homePlayer: { select: { id: true, name: true, shortName: true, avatarUrl: true } },

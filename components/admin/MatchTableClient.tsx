@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, ClipboardCheck, Pencil, Calendar, History, Gamepad2 } from 'lucide-react'
+import { Search, ClipboardCheck, Pencil, Calendar, History, Gamepad2, CheckCircle2 } from 'lucide-react'
 import { formatShortDate, formatTime, getStatusBadgeColor, getStatusLabel, formatDayDate } from '@/lib/utils'
 import DeleteButton from '@/components/admin/DeleteButton'
 import RescheduleButton from '@/components/admin/RescheduleButton'
@@ -157,7 +157,12 @@ export default function MatchTableClient({ matches, seasons, currentSeasonId, hi
                         </td>
                         <td className="text-center py-3 px-3">
                           {match.status === 'FINISHED' ? (
-                            <span className="font-gaming font-bold tabular-nums text-sm">{match.homeScore} : {match.awayScore}</span>
+                            <div className="flex items-center justify-center gap-1.5">
+                              <span className="font-gaming font-bold tabular-nums text-sm">{match.homeScore} : {match.awayScore}</span>
+                              {match.isVerified && (
+                                <CheckCircle2 className="w-4 h-4 text-green-500" title="Skor telah diperiksa" />
+                              )}
+                            </div>
                           ) : <span className="text-muted-foreground">—</span>}
                         </td>
                         <td className="text-center py-3 px-3">
@@ -190,10 +195,11 @@ export default function MatchTableClient({ matches, seasons, currentSeasonId, hi
                               <button 
                                 onClick={(e) => { e.stopPropagation(); toggleVerify(match.id, !!match.isVerified); }}
                                 disabled={verifying[match.id]}
-                                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 ${match.isVerified ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' : 'bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground'}`}
+                                className={`px-2 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors disabled:opacity-50 text-xs font-semibold ${match.isVerified ? 'bg-green-500/20 text-green-500 hover:bg-green-500/30' : 'bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground'}`}
                                 title={match.isVerified ? "Batal Verifikasi" : "Tandai Terverifikasi"}
                               >
-                                <ClipboardCheck className="w-4 h-4" />
+                                {match.isVerified ? <CheckCircle2 className="w-3.5 h-3.5" /> : <ClipboardCheck className="w-3.5 h-3.5" />}
+                                <span className="hidden sm:inline">{match.isVerified ? "Diperiksa" : "Periksa"}</span>
                               </button>
                             )}
 

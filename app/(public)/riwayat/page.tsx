@@ -30,8 +30,8 @@ async function getMatches(seasonIdParam?: string) {
     where: { status: 'FINISHED', seasonId: targetSeason.id },
     select: {
       id: true, status: true, homeScore: true, awayScore: true, scheduledAt: true,
-      homePlayer: { select: { id: true, name: true, shortName: true } },
-      awayPlayer: { select: { id: true, name: true, shortName: true } },
+      homePlayer: { select: { id: true, name: true, shortName: true, avatarUrl: true } },
+      awayPlayer: { select: { id: true, name: true, shortName: true, avatarUrl: true } },
       season: { select: { name: true } },
     },
     orderBy: { scheduledAt: 'desc' },

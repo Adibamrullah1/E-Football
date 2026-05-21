@@ -1,14 +1,18 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { History, Search, Calendar } from 'lucide-react'
-import { formatShortDate } from '@/lib/utils'
+import { History, Search, Calendar, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { formatDayDate } from '@/lib/utils'
 import SeasonSelector from '@/components/public/SeasonSelector'
+import MatchCard from '@/components/public/MatchCard'
+
+const ITEMS_PER_PAGE = 24
 
 interface Player {
   id: string
   name: string
   shortName: string
+  avatarUrl?: string | null
 }
 
 interface Match {
@@ -30,6 +34,7 @@ interface RiwayatClientProps {
 
 export default function RiwayatClient({ finished, seasons, currentSeasonId }: RiwayatClientProps) {
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
 
   // Filter function
   const matchSearch = (match: Match) => {
@@ -46,6 +51,28 @@ export default function RiwayatClient({ finished, seasons, currentSeasonId }: Ri
 
   // Filtered list
   const filteredMatches = useMemo(() => finished.filter(matchSearch), [finished, search])
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filteredMatches.length / ITEMS_PER_PAGE))
+  const paginatedMatches = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE
+    return filteredMatches.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredMatches, page])
+
+  // Group by date
+  const groupMatches = (matches: Match[]) => {
+    const grouped = new Map<string, Match[]>()
+    matches.forEach(match => {
+      const dateKey = formatDayDate(match.scheduledAt)
+      if (!grouped.has(dateKey)) {
+        grouped.set(dateKey, [])
+      }
+      grouped.get(dateKey)!.push(match)
+    })
+    return Array.from(grouped.entries())
+  }
+
+  const groupedFinished = useMemo(() => groupMatches(paginatedMatches), [paginatedMatches])
 
   return (
     <div className="container mx-auto px-4 py-6 md:py-8">
@@ -72,7 +99,7 @@ export default function RiwayatClient({ finished, seasons, currentSeasonId }: Ri
               type="text"
               placeholder="Cari nama player..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-secondary border border-border/50 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-muted-foreground"
             />
           </div>
@@ -94,56 +121,48 @@ export default function RiwayatClient({ finished, seasons, currentSeasonId }: Ri
         </div>
       )}
 
-      {/* Table Format */}
-      {filteredMatches.length > 0 && (
-        <div className="game-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[540px]">
-              <thead>
-                <tr className="border-b border-border/50 bg-secondary/30">
-                  <th className="text-center py-3 px-3 text-muted-foreground font-semibold text-xs uppercase w-12">No</th>
-                  <th className="text-left py-3 px-4 text-muted-foreground font-semibold text-xs uppercase">Pemain</th>
-                  <th className="text-center py-3 px-4 text-muted-foreground font-semibold text-xs uppercase">Skor</th>
-                  <th className="text-center py-3 px-4 text-muted-foreground font-semibold text-xs uppercase">Tanggal</th>
-                  <th className="text-center py-3 px-4 text-muted-foreground font-semibold text-xs uppercase hidden sm:table-cell">Musim</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredMatches.map((match, idx) => (
-                  <tr key={match.id} className="border-b border-border/30 table-row-hover transition-colors">
-                    <td className="text-center py-3 px-3 font-medium text-muted-foreground">
-                      {idx + 1}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-foreground text-sm">{match.homePlayer.name}</span>
-                        <span className="text-muted-foreground text-xs">vs</span>
-                        <span className="font-semibold text-foreground text-sm">{match.awayPlayer.name}</span>
-                      </div>
-                    </td>
-                    <td className="text-center py-3 px-4">
-                      <div className="inline-flex px-3 py-1 bg-secondary rounded-lg font-gaming font-bold tracking-wider text-sm shadow-inner">
-                        <span className={match.homeScore! > match.awayScore! ? 'text-green-400' : match.homeScore! < match.awayScore! ? 'text-red-400' : 'text-yellow-400'}>
-                          {match.homeScore}
-                        </span>
-                        <span className="mx-1 text-muted-foreground">-</span>
-                        <span className={match.awayScore! > match.homeScore! ? 'text-green-400' : match.awayScore! < match.homeScore! ? 'text-red-400' : 'text-yellow-400'}>
-                          {match.awayScore}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="text-center py-3 px-4 font-medium">
-                      {formatShortDate(match.scheduledAt)}
-                    </td>
-                    <td className="text-center py-3 px-4 text-muted-foreground text-xs hidden sm:table-cell">
-                      {match.season.name}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Finished Matches Cards */}
+      {groupedFinished.length > 0 && (
+        <section className="mb-12">
+          <div className="space-y-8">
+            {groupedFinished.map(([dateConfig, dayMatches]) => (
+              <div key={dateConfig}>
+                <div className="inline-block px-3 py-1 mb-4 rounded-lg bg-green-500/10 text-green-400 font-semibold text-sm border border-green-500/20">
+                  {dateConfig}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+                  {dayMatches.map(match => (
+                    <MatchCard key={match.id} match={match} />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-10">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg bg-secondary text-foreground hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed border border-border/50 transition-colors text-sm font-medium"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Sebelumnya
+              </button>
+              <div className="text-sm text-muted-foreground font-medium px-2">
+                Halaman {page} dari {totalPages}
+              </div>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg bg-secondary text-foreground hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed border border-border/50 transition-colors text-sm font-medium"
+              >
+                Selanjutnya
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </section>
       )}
     </div>
   )

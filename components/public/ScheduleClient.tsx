@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import MatchCard from '@/components/public/MatchCard'
-import { Calendar, CheckCircle, Clock, Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Calendar, Clock, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 
 const ITEMS_PER_PAGE = 24
 import { formatDayDate } from '@/lib/utils'
@@ -84,23 +84,12 @@ export default function ScheduleClient({ matches, seasons, currentSeasonId }: Sc
   // Filtered list (All matches that match search criteria)
   const filteredMatches = useMemo(() => matches.filter(matchFilter), [matches, search, dateSearch])
 
-  // Split into Scheduled and Finished
-  const scheduledMatches = useMemo(() => filteredMatches.filter(m => m.status === 'SCHEDULED' || m.status === 'LIVE'), [filteredMatches])
-  const finishedMatches = useMemo(() => filteredMatches.filter(m => m.status === 'FINISHED'), [filteredMatches])
-
-  // Pagination for Scheduled Matches
-  const totalPagesScheduled = Math.max(1, Math.ceil(scheduledMatches.length / ITEMS_PER_PAGE))
-  const paginatedScheduled = useMemo(() => {
+  // Pagination for Matches
+  const totalPages = Math.max(1, Math.ceil(filteredMatches.length / ITEMS_PER_PAGE))
+  const paginatedMatches = useMemo(() => {
     const start = (page - 1) * ITEMS_PER_PAGE
-    return scheduledMatches.slice(start, start + ITEMS_PER_PAGE)
-  }, [scheduledMatches, page])
-
-  // Pagination for Finished Matches
-  const totalPagesFinished = Math.max(1, Math.ceil(finishedMatches.length / ITEMS_PER_PAGE))
-  const paginatedFinished = useMemo(() => {
-    const start = (page - 1) * ITEMS_PER_PAGE
-    return finishedMatches.slice(start, start + ITEMS_PER_PAGE)
-  }, [finishedMatches, page])
+    return filteredMatches.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredMatches, page])
 
   // Group by date (formatDayDate returns standard string representing the day)
   const groupMatches = (matches: Match[]) => {
@@ -115,8 +104,7 @@ export default function ScheduleClient({ matches, seasons, currentSeasonId }: Sc
     return Array.from(grouped.entries())
   }
 
-  const groupedScheduled = useMemo(() => groupMatches(paginatedScheduled), [paginatedScheduled])
-  const groupedFinished = useMemo(() => groupMatches(paginatedFinished), [paginatedFinished])
+  const groupedMatches = useMemo(() => groupMatches(paginatedMatches), [paginatedMatches])
 
   return (
     <div className="container mx-auto px-4 py-6 md:py-8">
@@ -171,7 +159,7 @@ export default function ScheduleClient({ matches, seasons, currentSeasonId }: Sc
       )}
 
       {/* Upcoming Matches */}
-      {groupedScheduled.length > 0 && (
+      {groupedMatches.length > 0 && (
         <section className="mb-12">
           <div className="flex items-center gap-2 mb-6 border-b border-border/50 pb-3">
             <Clock className="w-5 h-5 text-blue-400" />
@@ -179,7 +167,7 @@ export default function ScheduleClient({ matches, seasons, currentSeasonId }: Sc
           </div>
 
           <div className="space-y-8">
-            {groupedScheduled.map(([dateConfig, dayMatches]) => (
+            {groupedMatches.map(([dateConfig, dayMatches]) => (
               <div key={dateConfig}>
                 <div className="inline-block px-3 py-1 mb-4 rounded-lg bg-blue-500/10 text-blue-400 font-semibold text-sm border border-blue-500/20">
                   {dateConfig}
@@ -193,7 +181,7 @@ export default function ScheduleClient({ matches, seasons, currentSeasonId }: Sc
             ))}
           </div>
 
-          {totalPagesScheduled > 1 && (
+          {totalPages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-10">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -204,60 +192,11 @@ export default function ScheduleClient({ matches, seasons, currentSeasonId }: Sc
                 Sebelumnya
               </button>
               <div className="text-sm text-muted-foreground font-medium px-2">
-                Halaman {page} dari {totalPagesScheduled}
+                Halaman {page} dari {totalPages}
               </div>
               <button
-                onClick={() => setPage(p => Math.min(totalPagesScheduled, p + 1))}
-                disabled={page === totalPagesScheduled}
-                className="flex items-center gap-1 px-3 py-2 rounded-lg bg-secondary text-foreground hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed border border-border/50 transition-colors text-sm font-medium"
-              >
-                Selanjutnya
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* Finished Matches */}
-      {groupedFinished.length > 0 && (
-        <section className="mb-12">
-          <div className="flex items-center gap-2 mb-6 border-b border-border/50 pb-3">
-            <CheckCircle className="w-5 h-5 text-green-400" />
-            <h2 className="font-heading text-xl font-bold text-foreground">Riwayat & Hasil Selesai</h2>
-          </div>
-
-          <div className="space-y-8">
-            {groupedFinished.map(([dateConfig, dayMatches]) => (
-              <div key={dateConfig}>
-                <div className="inline-block px-3 py-1 mb-4 rounded-lg bg-green-500/10 text-green-400 font-semibold text-sm border border-green-500/20">
-                  {dateConfig}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
-                  {dayMatches.map(match => (
-                    <MatchCard key={match.id} match={match} />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {totalPagesFinished > 1 && (
-            <div className="flex justify-center items-center gap-2 mt-10">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="flex items-center gap-1 px-3 py-2 rounded-lg bg-secondary text-foreground hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed border border-border/50 transition-colors text-sm font-medium"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Sebelumnya
-              </button>
-              <div className="text-sm text-muted-foreground font-medium px-2">
-                Halaman {page} dari {totalPagesFinished}
-              </div>
-              <button
-                onClick={() => setPage(p => Math.min(totalPagesFinished, p + 1))}
-                disabled={page === totalPagesFinished}
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
                 className="flex items-center gap-1 px-3 py-2 rounded-lg bg-secondary text-foreground hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed border border-border/50 transition-colors text-sm font-medium"
               >
                 Selanjutnya
