@@ -7,11 +7,15 @@ export default auth((req) => {
   const isAuthenticated = !!req.auth
 
   if (isAdminRoute && !isLoginPage && !isAuthenticated) {
-    return NextResponse.redirect(new URL('/admin/login', req.url))
+    const loginUrl = req.nextUrl.clone()
+    loginUrl.pathname = '/admin/login'
+    return NextResponse.redirect(loginUrl)
   }
 
   if (isLoginPage && isAuthenticated) {
-    return NextResponse.redirect(new URL('/admin', req.url))
+    const adminUrl = req.nextUrl.clone()
+    adminUrl.pathname = '/admin'
+    return NextResponse.redirect(adminUrl)
   }
 
   return NextResponse.next()
