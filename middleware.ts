@@ -6,16 +6,16 @@ export default auth((req) => {
   const isLoginPage = req.nextUrl.pathname === '/admin/login'
   const isAuthenticated = !!req.auth
 
+  const host = req.headers.get('x-forwarded-host') || req.nextUrl.host;
+  const protocol = req.headers.get('x-forwarded-proto') || req.nextUrl.protocol;
+  const baseUrl = `${protocol}://${host}`;
+
   if (isAdminRoute && !isLoginPage && !isAuthenticated) {
-    const loginUrl = req.nextUrl.clone()
-    loginUrl.pathname = '/admin/login'
-    return NextResponse.redirect(loginUrl)
+    return NextResponse.redirect(new URL('/admin/login', baseUrl))
   }
 
   if (isLoginPage && isAuthenticated) {
-    const adminUrl = req.nextUrl.clone()
-    adminUrl.pathname = '/admin'
-    return NextResponse.redirect(adminUrl)
+    return NextResponse.redirect(new URL('/admin', baseUrl))
   }
 
   return NextResponse.next()
