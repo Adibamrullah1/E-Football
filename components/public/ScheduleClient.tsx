@@ -36,53 +36,52 @@ export default function ScheduleClient({ matches, seasons, currentSeasonId }: Sc
   const [dateSearch, setDateSearch] = useState('')
   const [page, setPage] = useState(1)
 
-  // Filter function
-  const matchFilter = (match: Match) => {
-    let isValid = true
-
-    if (search.trim()) {
-      const q = search.toLowerCase()
-      const homeName = match.homePlayer.name?.toLowerCase() || ''
-      const awayName = match.awayPlayer.name?.toLowerCase() || ''
-      const homeShort = match.homePlayer.shortName?.toLowerCase() || ''
-      const awayShort = match.awayPlayer.shortName?.toLowerCase() || ''
-      
-      const matchStringHomeAway = `${homeName} vs ${awayName}`
-      const matchStringAwayHome = `${awayName} vs ${homeName}`
-      const matchStringHomeAwayV = `${homeName} v ${awayName}`
-      const matchStringAwayHomeV = `${awayName} v ${homeName}`
-      
-      isValid = homeName.includes(q) || 
-                awayName.includes(q) || 
-                homeShort.includes(q) || 
-                awayShort.includes(q) ||
-                matchStringHomeAway.includes(q) ||
-                matchStringAwayHome.includes(q) ||
-                matchStringHomeAwayV.includes(q) ||
-                matchStringAwayHomeV.includes(q)
-    }
-
-    if (isValid && dateSearch) {
-      try {
-        const matchDateObj = new Date(match.scheduledAt)
-        const matchYear = matchDateObj.getFullYear()
-        const matchMonth = String(matchDateObj.getMonth() + 1).padStart(2, '0')
-        const matchDay = String(matchDateObj.getDate()).padStart(2, '0')
-        const matchDateStr = `${matchYear}-${matchMonth}-${matchDay}`
-        
-        if (matchDateStr !== dateSearch) {
-          isValid = false
-        }
-      } catch (e) {
-        isValid = true
-      }
-    }
-
-    return isValid
-  }
-
   // Filtered list (All matches that match search criteria)
-  const filteredMatches = useMemo(() => matches.filter(matchFilter), [matches, search, dateSearch])
+  const filteredMatches = useMemo(() => {
+    return matches.filter((match) => {
+      let isValid = true
+
+      if (search.trim()) {
+        const q = search.toLowerCase()
+        const homeName = match.homePlayer.name?.toLowerCase() || ''
+        const awayName = match.awayPlayer.name?.toLowerCase() || ''
+        const homeShort = match.homePlayer.shortName?.toLowerCase() || ''
+        const awayShort = match.awayPlayer.shortName?.toLowerCase() || ''
+        
+        const matchStringHomeAway = `${homeName} vs ${awayName}`
+        const matchStringAwayHome = `${awayName} vs ${homeName}`
+        const matchStringHomeAwayV = `${homeName} v ${awayName}`
+        const matchStringAwayHomeV = `${awayName} v ${homeName}`
+        
+        isValid = homeName.includes(q) || 
+                  awayName.includes(q) || 
+                  homeShort.includes(q) || 
+                  awayShort.includes(q) ||
+                  matchStringHomeAway.includes(q) ||
+                  matchStringAwayHome.includes(q) ||
+                  matchStringHomeAwayV.includes(q) ||
+                  matchStringAwayHomeV.includes(q)
+      }
+
+      if (isValid && dateSearch) {
+        try {
+          const matchDateObj = new Date(match.scheduledAt)
+          const matchYear = matchDateObj.getFullYear()
+          const matchMonth = String(matchDateObj.getMonth() + 1).padStart(2, '0')
+          const matchDay = String(matchDateObj.getDate()).padStart(2, '0')
+          const matchDateStr = `${matchYear}-${matchMonth}-${matchDay}`
+          
+          if (matchDateStr !== dateSearch) {
+            isValid = false
+          }
+        } catch (e) {
+          isValid = true
+        }
+      }
+
+      return isValid
+    })
+  }, [matches, search, dateSearch])
 
   // Pagination for Matches
   const totalPages = Math.max(1, Math.ceil(filteredMatches.length / ITEMS_PER_PAGE))

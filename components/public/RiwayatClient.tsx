@@ -36,21 +36,20 @@ export default function RiwayatClient({ finished, seasons, currentSeasonId }: Ri
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
 
-  // Filter function
-  const matchSearch = (match: Match) => {
-    if (!search.trim()) return true
-    const q = search.toLowerCase()
-    
-    const homeName = match.homePlayer.name?.toLowerCase() || ''
-    const awayName = match.awayPlayer.name?.toLowerCase() || ''
-    const homeShort = match.homePlayer.shortName?.toLowerCase() || ''
-    const awayShort = match.awayPlayer.shortName?.toLowerCase() || ''
-    
-    return homeName.includes(q) || awayName.includes(q) || homeShort.includes(q) || awayShort.includes(q)
-  }
-
   // Filtered list
-  const filteredMatches = useMemo(() => finished.filter(matchSearch), [finished, search])
+  const filteredMatches = useMemo(() => {
+    return finished.filter((match) => {
+      if (!search.trim()) return true
+      const q = search.toLowerCase()
+      
+      const homeName = match.homePlayer.name?.toLowerCase() || ''
+      const awayName = match.awayPlayer.name?.toLowerCase() || ''
+      const homeShort = match.homePlayer.shortName?.toLowerCase() || ''
+      const awayShort = match.awayPlayer.shortName?.toLowerCase() || ''
+      
+      return homeName.includes(q) || awayName.includes(q) || homeShort.includes(q) || awayShort.includes(q)
+    })
+  }, [finished, search])
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filteredMatches.length / ITEMS_PER_PAGE))
