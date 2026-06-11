@@ -1,0 +1,57 @@
+[
+  {
+    "id": "cmnmtlzkh0001fxbcf3r1z6zh",
+    "name": "Wildan",
+    "username": "wildan",
+    "shortName": "WLD",
+    "avatarUrl": null,
+    "description": null,
+    "city": null,
+    "createdAt": "2026-04-06T06:39:54.449Z",
+    "updatedAt": "2026-04-06T06:39:54.449Z"
+  },
+  {
+    "id": "cmnmtlzxy0002fxbc0z53wg9a",
+    "name": "Iqbal",
+    "username": "iqbal",
+    "shortName": "IQB",
+    "avatarUrl": null,
+    "description": null,
+    "city": null,
+    "createdAt": "2026-04-06T06:39:54.934Z",
+    "updatedAt": "2026-04-06T06:39:54.934Z"
+  },
+  {
+    "id": "cmnmtm0bk0003fxbc1kou8kti",
+    "name": "Udin",
+    "username": "udin",
+    "shortName": "UDN",
+    "avatarUrl": null,
+    "description": null,
+    "city": null,
+    "createdAt": "2026-04-06T06:39:55.424Z",
+    "updatedAt": "2026-04-06T06:39:55.424Z"
+  },
+  {
+    "id": "cmnmtm0p90004fxbcpl43df25",
+    "name": "Zainal",
+    "username": "zainal",
+    "shortName": "ZNL",
+    "avatarUrl": null,
+    "description": null,
+    "city": null,
+    "createdAt": "2026-04-06T06:39:55.917Z",
+    "updatedAt": "2026-04-06T06:39:55.917Z"
+  },
+  {
+    "id": "cmnmtm12w0005fxbc94w530qj",
+    "name": "Sahril",
+    "username": "sahril",
+    "shortName": "SHR",
+    "avatarUrl": null,
+    "description": null,
+    "city": null,
+    "createdAt": "2026-04-06T06:39:56.408Z",
+    "updatedAt": "2026-04-06T06:39:56.408Z"
+  }
+]
