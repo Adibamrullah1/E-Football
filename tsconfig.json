@@ -22,5 +22,14 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "export_all_matches.ts",
+    "export_matches.ts",
+    "export_to_json.ts",
+    "inspect_schedules.ts",
+    "trim_quota.ts",
+    "update_schedules.ts",
+    "verify_quota.ts"
+  ]
 }

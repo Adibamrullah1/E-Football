@@ -1,7 +1,4 @@
-import fs from 'fs/promises';
-import path from 'path';
-
-const dataDir = path.join(process.cwd(), 'data');
+import { readData, writeData } from './storage';
 
 export interface Season {
   id: string;
@@ -14,6 +11,7 @@ export interface Season {
   _count?: any;
   matches: any;
 }
+
 
 export interface Player {
   id: string;
@@ -56,24 +54,8 @@ export interface User {
   createdAt: string | Date;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-async function readData<T>(filename: string): Promise<T[]> {
-  try {
-    const filePath = path.join(dataDir, filename);
-    const raw = await fs.readFile(filePath, 'utf-8');
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-async function writeData<T>(filename: string, data: T[]): Promise<void> {
-  const filePath = path.join(dataDir, filename);
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
-}
-
 /**
+
  * Apply a generic where clause to an array of records.
  * Supports: equality, OR[], { in: [] }, { not: val },
  *           { gte: date, lte: date }, nested objects via dot-path (future).
