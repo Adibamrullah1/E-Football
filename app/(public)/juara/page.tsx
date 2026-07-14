@@ -14,7 +14,7 @@ async function getChampions() {
   const champions = pastSeasons.map(s => {
     const sMap = new Map<string, any>()
     players.forEach(p => sMap.set(p.id, { points: 0, playerName: p.name, shortName: p.shortName, avatarUrl: p.avatarUrl }))
-    s.matches.forEach(m => {
+    s.matches.forEach((m: any) => {
       if (m.homeScore === null || m.awayScore === null) return
       const home = sMap.get(m.homePlayerId)
       const away = sMap.get(m.awayPlayerId)

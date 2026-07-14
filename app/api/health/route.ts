@@ -8,8 +8,8 @@ export async function GET() {
   const start = Date.now()
 
   try {
-    // Test database connectivity
-    await prisma.$queryRaw`SELECT 1`
+    // Test database connectivity (JSON file based)
+    await prisma.$queryRaw('SELECT 1')
 
     const response = {
       status: 'healthy',
